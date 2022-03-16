@@ -1,6 +1,7 @@
 let loading = false;
 let personajes = [];
 let episodios = [];
+let aparece = false;
 let controller; // Abort controller
 
 const fetchEpisode = async (characterEpisodeApiUrl) => {
@@ -60,6 +61,9 @@ const renderEpisodes = (episodes) => {
 
 const fetchCharacters = async () => {
 	try {
+		if (aparece){ // QUITAR ESTO DE AQUI Y PONERLO DONDE CORRESPONDA
+  			console.log("Borrar lista");
+  		}
 		controller = new AbortController();
   		const signal = controller.signal;
 		const res = await fetch ("https://rickandmortyapi.com/api/character");
@@ -95,7 +99,6 @@ function saveInput(){
 	console.log(nombre);
 
 	let indice = 0;
-	let aparece = false;
 
 	const lista = document.getElementById("lista");
 	let entrada = document.createElement('li');
