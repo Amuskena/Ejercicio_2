@@ -45,8 +45,10 @@ const showLoading = () => {
 };
 
 const renderEpisodes = (episodes) => {
+		
 	const appNode = document.getElementById("app");
 	const episodesNode = document.createElement("ul");
+	episodesNode.setAttribute('id', 'lista');
 
 	episodesNode.id = "episodes";
 	appNode.appendChild(episodesNode);
@@ -57,13 +59,11 @@ const renderEpisodes = (episodes) => {
 		episodeNode.innerHTML = episode.name;
 		episodesNode.appendChild(episodeNode);
 	});
+	
 }
 
 const fetchCharacters = async () => {
-	try {
-		if (aparece){ // QUITAR ESTO DE AQUI Y PONERLO DONDE CORRESPONDA
-  			console.log("Borrar lista");
-  		}
+	try {		
 		controller = new AbortController();
   		const signal = controller.signal;
 		const res = await fetch ("https://rickandmortyapi.com/api/character");
@@ -92,19 +92,34 @@ function debounce(func, timeout = 300){
   };
 }
 
-function saveInput(){
-  	//console.log('Guardando');
-  	showLoading();
+async function saveInput(){
+	// Si ya hay un resultado, se borra
+	if (aparece){ 
+		aparece = false;
+		borrarLista();
+  		//console.log("Borrar lista");
+		
+		/*const episodios = document.getElementById("episodes");
+		while (episodios) {
+		    episodios.remove();
+		}*/
+  	}
+  	// Si todavía no hay resultado  	
 	let nombre = document.querySelector('input[name="busqueda"]').value;
+	if(nombre == ""){
+		hideLoading();
+		borrarLista();
+	} else {
+		showLoading();
+	}
 	console.log(nombre);
 
 	let indice = 0;
-
-	const lista = document.getElementById("lista");
-	let entrada = document.createElement('li');
+	/*const lista = document.getElementById("lista");
+	let entrada = document.createElement('li');*/
 
 	// POR ARREGLAR EL BUCLE DEL CAOS
-	for (let i in personajes){
+	/*for (let i in personajes){
 		if(nombre.toLowerCase() === personajes[i].toLowerCase()){
 			indice = i;
 			aparece = true;
@@ -115,20 +130,22 @@ function saveInput(){
 				console.log(episodios[j]);
 			}
 		}
-	}
+	}*/
 
-	const characterEpisodesApiUrls = episodios[indice];
+	for (let i in personajes){
+		if(nombre.toLowerCase() === personajes[i].toLowerCase()){
+			aparece = true;
+			const characterEpisodesApiUrls = episodios[indice];
+			const charactersEpisodes = await fetchEpisodes(characterEpisodesApiUrls);
+			renderEpisodes(charactersEpisodes);
+		}
+	}
+	
 	if (aparece){
-		console.log(episodios[indice]);
+		//console.log(episodios[indice]);
 		hideLoading();
-	}
-
-	if (controller) controller.abort();
-
-
-	/*const charactersEpisodes = await fetchEpisodes(characterEpisodesApiUrls);
-
-	renderEpisodes(charactersEpisodes);*/
+		//if (controller) controller.abort();
+	}	
 
 	return nombre;
 }
@@ -165,6 +182,15 @@ const addOnSelectChangeEvent = (personajes, episodios) => {
 		//hideLoading();
 	});
 };
+
+function borrarLista(){
+	console.log("Borrar lista");
+	//const elementos = document.querySelector("li");
+	const elementos = document.getElementById("episodes");
+	while(elementos.firstChild){
+		elementos.removeChild(elementos.lastChild);
+	}
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const { personajes, episodios } = await fetchCharacters();
